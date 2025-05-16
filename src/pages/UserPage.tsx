@@ -32,21 +32,23 @@ export default function UserPage() {
   };
 
   return (
-    <div>
-      {!registered ? (
-        <>
-          <h2>Nhập tên:</h2>
-          <input value={name} onChange={(e) => setName(e.target.value)} />
-          <button onClick={handleRegister}>Vào chơi</button>
-        </>
-      ) : (
-        <>
-          <h2>Chào {name}!</h2>
-          <button onClick={handleFlip}>Tung đồng xu</button>
-          <p>Kết quả: {flipResult}</p>
-          <p>Tổng số lần đã tung: {totalFlips}</p>
-        </>
-      )}
+    <div className="center-container">
+      <div className="main-box">
+        {!registered ? (
+          <>
+            <h2>Nhập tên:</h2>
+            <input value={name} onChange={(e) => setName(e.target.value)} />
+            <button onClick={handleRegister}>Vào chơi</button>
+          </>
+        ) : (
+          <>
+            <h2>Chào {name}!</h2>
+            <button onClick={handleFlip}>Tung đồng xu</button>
+            <p>Kết quả: {flipResult}</p>
+            <p>Tổng số lần đã tung: {totalFlips}</p>
+          </>
+        )}
+      </div>
     </div>
   );
 }
