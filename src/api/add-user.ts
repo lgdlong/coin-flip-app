@@ -1,25 +1,18 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "POST") return res.status(405).end();
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_KEY!
+);
 
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { name } = req.body;
-  const filePath = path.resolve(__dirname, "../../users.json");
 
-  let data = {};
-  try {
-    data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-  } catch (err) {
-    // file chưa tồn tại hoặc lỗi => tạo mới
-    fs.writeFileSync(filePath, "{}");
-  }
+  const { data, error } = await supabase
+    .from("users")
+    .upsert({ name, flips: 0 }, { onConflict: "name" });
 
-  if (!(name in data)) {
-    (data as any)[name] = 0;
-  }
-
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-  return res.status(200).json({ message: "User added or already exists" });
+  if (error) return res.status(500).json({ error });
+  return res.status(200).json({ message: "User created or exists", data });
 }

@@ -37,7 +37,11 @@ export default function UserPage() {
         {!registered ? (
           <>
             <h2>Nhập tên:</h2>
-            <input value={name} onChange={(e) => setName(e.target.value)} />
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nhập tên..."
+            />
             <button onClick={handleRegister}>Vào chơi</button>
           </>
         ) : (

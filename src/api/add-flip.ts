@@ -1,26 +1,29 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "POST") return res.status(405).end();
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_KEY!
+);
 
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { name } = req.body;
-  const filePath = path.resolve(__dirname, "../../users.json");
 
-  let data = {};
-  try {
-    data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-  } catch (err) {
-    return res.status(500).json({ error: "Cannot read data file" });
-  }
+  // Get current flips
+  const { data: user, error: getErr } = await supabase
+    .from("users")
+    .select("flips")
+    .eq("name", name)
+    .single();
 
-  if (!(name in data)) {
-    (data as any)[name] = 1;
-  } else {
-    (data as any)[name]++;
-  }
+  if (getErr || !user) return res.status(404).json({ error: "User not found" });
 
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-  return res.status(200).json({ flips: (data as any)[name] });
+  const { error: updateErr } = await supabase
+    .from("users")
+    .update({ flips: user.flips + 1 })
+    .eq("name", name);
+
+  if (updateErr) return res.status(500).json({ error: updateErr.message });
+
+  return res.status(200).json({ flips: user.flips + 1 });
 }

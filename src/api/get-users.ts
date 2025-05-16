@@ -1,14 +1,20 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
 
-export default function handler(_: VercelRequest, res: VercelResponse) {
-  const filePath = path.resolve(__dirname, "../../users.json");
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_KEY!
+);
 
-  try {
-    const data = fs.readFileSync(filePath, "utf-8");
-    return res.status(200).json(JSON.parse(data));
-  } catch (err) {
-    return res.status(500).json({ error: "Cannot read data file" });
-  }
+export default async function handler(
+  _req: VercelRequest,
+  res: VercelResponse
+) {
+  const { data, error } = await supabase
+    .from("users")
+    .select("name, flips")
+    .order("flips", { ascending: false });
+
+  if (error) return res.status(500).json({ error });
+  return res.status(200).json(data);
 }

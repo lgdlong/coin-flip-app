@@ -1,34 +1,44 @@
 import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 import type { UserStats } from "../types";
 
 export default function AdminPage() {
-  const [stats, setStats] = useState<UserStats>({});
+  const [users, setUsers] = useState<UserStats[]>([]);
 
   useEffect(() => {
-    fetch("/api/get-users")
-      .then((res) => res.json())
-      .then(setStats);
+    const fetchUsers = async () => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("name, flips")
+        .order("flips", { ascending: false });
+
+      if (!error && data) setUsers(data);
+    };
+
+    fetchUsers();
   }, []);
 
   return (
     <div className="center-container">
-      <h2>Quản lý người dùng</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Tên</th>
-            <th>Số lần tung</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(stats).map(([name, count]) => (
-            <tr key={name}>
-              <td>{name}</td>
-              <td>{count}</td>
+      <div className="main-box">
+        <h2>Quản lý người dùng</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Tên</th>
+              <th>Số lần tung</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map(({ name, flips }) => (
+              <tr key={name}>
+                <td>{name}</td>
+                <td>{flips}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

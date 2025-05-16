@@ -1,3 +1,4 @@
 export interface UserStats {
-  [username: string]: number;
+  name: string;
+  flips: number;
 }
