@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import fs from "fs";
 import path from "path";
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(_: VercelRequest, res: VercelResponse) {
   const filePath = path.resolve(__dirname, "../../users.json");
 
   try {
