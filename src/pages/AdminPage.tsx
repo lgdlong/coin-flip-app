@@ -11,7 +11,7 @@ export default function AdminPage() {
   }, []);
 
   return (
-    <div>
+    <div className="center-container">
       <h2>Quản lý người dùng</h2>
       <table>
         <thead>
